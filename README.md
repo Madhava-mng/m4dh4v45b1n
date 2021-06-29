@@ -20,7 +20,9 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```
+$ m4dh4v45b1n.rb
+```
 
 ## Contributing
 
