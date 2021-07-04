@@ -18,9 +18,9 @@ $ m4dh4v45b1n.rb
 
 ## fuzz-web-dir.rb
 
-__Abliry__: _hide or show statuscode, chars, line. add headers. with random user-agent_
+__Ability__: _hide or show statuscode, chars, line. add headers. with random user-agent_
 
-```bash
+```ruby
 $ fuzz-web-dir.rb -h
 
 Usage: fuzz-web-dir.rb [-h] [-w DICT] [-t MAXTHREAD] [..] URL
@@ -47,9 +47,9 @@ Eg: fuzz-web-dir.rb -e php,txt --hc 303,404  https://example.com
 
 ## enum-subdimain.rb
 
-__ability__: _Once It get the subdomain via *RANDOM DNS*.It never enumarate again if you don't use '-C' flag.The data logs under ~/.cache/enum-subdomain/._
+__Ability__: _Once It get the subdomain via *RANDOM DNS*.It never enumarate again if you don't use '-C' flag.The data logs under ~/.cache/enum-subdomain/._
 
-```bash
+```ruby
 $ enum-subdomain.rb -h
 
 Usage: enum-subdomain.rb [-h] [-v] [-w DICT] [-t MAXTHREAD] [-T TIMEOUT] [-o OUT] DOMAIN
