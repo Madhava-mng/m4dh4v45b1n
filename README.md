@@ -2,6 +2,16 @@
 
 It just binaries written in ruby for linux
 
+![](https://img.shields.io/gem/v/m4dh4v45b1n)
+![](https://img.shields.io/gem/dt/m4dh4v45b1n)
+![](https://img.shields.io/gem/rt/m4dh4v45b1n)
+![](https://img.shields.io/gem/dtv/m4dh4v45b1n)
+![](https://img.shields.io/github/license/Madhava-mng/m4dh4v45b1n)
+
+## require
+
+* ruby-3.x.x
+
 ## Installation
 
 
