@@ -5,6 +5,7 @@ require 'resolv'
 require 'resolv-replace'
 
 
+
 NAME_SERVERS = {
   "Cloudflare": ['1.1.1.1', '1.0.0.1'],
   "Google": ['8.8.8.8', '8.8.4.4'],
@@ -14,17 +15,45 @@ NAME_SERVERS = {
 
 TIME_OUT = 1
 MAX_THREAD = 25
-WORDLIST = Gem::path[1]+"/gems/m4dh4v45b1n-#{VERSION}/dict/subdomain.txt"
 
+def wordlist
+  Gem::path.map do |p|
+    if File.exist? p+"/gems/m4dh4v45b1n-#{VERSION}/dict/subdomain.txt"
+      return p+"/gems/m4dh4v45b1n-#{VERSION}/dict/subdomain.txt"
+    end
+  end
+  puts "enum-subdomain.rb: Unable to deduct default wordlist use -w"
+  exit
+end
+def cache_subdomain
+  if !ENV["HOME"].nil?
+    if !File.exist? ENV["HOME"]+"/.cache"
+      Dir::mkdir ENV["HOME"]+"/.cache"
+    end
+    if !File.exist? ENV["HOME"]+"/.cache/enum-subdomain"
+      Dir::mkdir ENV["HOME"]+"/.cache/enum-subdomain"
+    end
+    if File.exist? ENV["HOME"]+"/.cache/enum-subdomain"
+      return ENV["HOME"]+"/.cache/enum-subdomain"
+    end
+  end
+  return nil
+end
+
+CACHE = cache_subdomain
+WORDLIST = wordlist
 
 class Subdomain_enum
-  attr_accessor :target, :wordlist, :timeout, :max_thread, :out, :verbose
+  attr_accessor :target, :wordlist, :timeout, :max_thread, :out, :verbose,:cache_file,:show_cache, :show_cache_without_d,:show_new
   def initialize
     @timeout = TIME_OUT
     @max_thread = MAX_THREAD
     @wordlist = WORDLIST
     @verbose = false
     @outb=""
+    @show_cache = false
+    @show_new = true
+    @show_cache_without_d = true
   end
   def loader(list)
     return Resolv::DefaultResolver.replace_resolvers([
@@ -54,6 +83,9 @@ class Subdomain_enum
   def print_domain(domain)
     response = get_domain(domain)
     if response.length > 0
+      if !CACHE.nil?
+        @cache_file.write("#{domain.gsub(@target, "\x7")}")
+      end
       if @verbose
         puts "\e[32m#{domain}\e[0m :#{response.join("\e[2m/\e[0m")}"
       else
@@ -64,7 +96,37 @@ class Subdomain_enum
       end
     end
   end
+  def check_cache_domain
+    if !CACHE.nil?
+      if !File.file? CACHE+"/#{@target}.cache"
+        File.open(CACHE+"/#{@target}.cache", "a")
+      else
+        File.open(CACHE+"/#{@target}.cache") do |f|
+          data_ = f.read.split("\x7")
+          data_ = data_.uniq
+          data_.map do |s|
+            if @show_new
+              if @show_cache
+                $stdout.print s+target+"\n"
+              else
+                puts "\e[32m#{s+@target}\e[0m"
+              end
+            end
+          end
+          File.open(CACHE+"/#{@target}.cache", "w") do |f2|
+            f2.write(data_.join("\x7"))
+          end
+          return data_.map {|a| a[0,a.length-1] }
+        end
+      end
+    end
+    return []
+  end
   def brut
+    already_have = check_cache_domain
+    if @show_cache
+      exit
+    end
     if Resolv.getaddresses(@target).length == 0
       print "enum-subdomain.rb: #{@target}:Unreachable.\nDo you wana exit ? "
       tmp = STDIN.gets.chomp
@@ -72,19 +134,33 @@ class Subdomain_enum
         exit
       end
     end
+    if !CACHE.nil?
+      @cache_file = File.open(CACHE+"/#{@target}.cache", "a")
+    end
     if @out
       @out = File.open(@out, "w")
     end
-    File.open(@wordlist).readlines.map do |line|
+    wordlist_ = File.open(@wordlist).readlines.uniq
+    if @show_cache_without_d
+      already_have.map do |a|
+        wordlist_.delete(a)
+      end
+    end
+    wordlist_.map do |line|
       Thread::new do
-        print_domain(
-          [line.chomp, @target.strip].join(".")
-        )
+        if !already_have.include? line.chomp
+          print_domain(
+            [line.chomp, @target.strip].join(".")
+          )
+        end
       end
       sleep 0.03
       while Thread::list.length > @max_thread;end
     end
     while Thread::list.length > 1;end
+    if Thread::list.length == 1
+      sleep 0.6
+    end
   end
 end
 

@@ -5,7 +5,7 @@ require 'm4dh4v45b1n'
 print "
 script
   ├── enum
-  │    ├── enum-wordpress.rb
+  │    ├── enum-wordpress-user.rb
   │    └── enum-subdomain.rb
   ├── exploit
   ├── scan
@@ -15,7 +15,12 @@ script
 dict
   ├── dirs.txt
   └── subdomain.txt
+recomended
+  ├── ruby-3.x.x
+  └── linux based (if works fine on other os just leave it)
 other
-  ├── (#{VERSION})
-  └── Madhava-mng
+  ├── version
+  │     └── (#{VERSION})
+  └── author
+        └── Madhava-mng
 "

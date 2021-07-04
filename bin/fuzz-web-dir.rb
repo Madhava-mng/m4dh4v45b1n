@@ -7,8 +7,9 @@ require 'optparse'
 def  main
   init = Fuzz_web_dir::new()
   OptionParser.new do |optp|
-    optp.banner = "\nUsage: fuzz_web_dir.rb [-h] [-w DICT] [-t MAXTHREAD] [..] URL
+    optp.banner = "\nUsage: fuzz-web-dir.rb [-h] [-w DICT] [-t MAXTHREAD] [..] URL
 des: Directory fuzzer. (#{VERSION})
+recomended: ruby-3.x.x otherwise it won't work properly.
 Eg: fuzz-web-dir.rb -e php,txt --hc 303,404  https://example.com\n\n"
     optp.program_name = "fuzz-web-dir"
     optp.summary_width = 15

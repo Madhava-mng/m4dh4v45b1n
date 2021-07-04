@@ -2,10 +2,18 @@ require_relative 'version'
 require_relative 'rand-util'
 require 'json'
 require 'net/http';
-
-FUZZ_WEB_DIR_DICT= Gem::path[1]+"/gems/m4dh4v45b1n-#{VERSION}/dict/dirs.txt"
+def wordlist
+  Gem::path.map do |p|
+    if File.exist? p+"/gems/m4dh4v45b1n-#{VERSION}/dict/dirs.txt"
+      return p+"/gems/m4dh4v45b1n-#{VERSION}/dict/dirs.txt"
+    end
+  end
+  puts "fuzz-web-dir.rb: Unable to deduct default wordlist use -w"
+  exit
+end
+FUZZ_WEB_DIR_DICT= wordlist
 FUZZ_WEB_DIR_HIDE_CODE=['404']
-FUZZ_WEB_DIR_EXT = ['php', 'txt', 'html']
+FUZZ_WEB_DIR_EXT = ['php', 'txt', 'html', 'xml']
 FUZZ_WEB_DIR_HEADER = '{}'
 FUZZ_WEB_DIR_TIMEOUT = 1    # SECONDS
 FUZZ_WEB_DIR_MAX_THREAD = 24
