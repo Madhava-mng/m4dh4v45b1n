@@ -19,11 +19,21 @@ Eg: fuzz-web-dir.rb -e php,txt --hc 303,404  https://example.com\n\n"
     optp.on('-w WORDLIST', "Use custom wordlist. (default:#{FUZZ_WEB_DIR_DICT})") do |w|
       init.dict = w
     end
-    optp.on('-e EXT', "Add extension.Use comma for multiple value. (default:txt,php,html") do |w|
+    optp.on('-e EXT', "Add extension.Use comma for multiple value. (default:txt,php,html,xml") do |w|
       init.ext = w.split(',')
     end
     optp.on('-p PAUSE', Float, 'Pause the fuzz for N second.') do |p|
       init.wait = p
+    end
+    optp.on('-d' , "Enable decoy for evate the fire wall. add #{FUZZ_WEB_DIR_PROXY_FILE} for default decoy list. x.x.x.x:p format.") do |d|
+      init.decoy = true
+    end
+    optp.on('-D DECOY' , "Use decoy file.") do |d|
+      init.decoy = true
+      init.pfile = d
+    end
+    optp.on('-n', 'Run decoy with out checking it. It may affect the result.') do
+      init.check = false
     end
     optp.on('-t MAXTHREAD', Integer, "Maximum concurrency. (default:#{FUZZ_WEB_DIR_MAX_THREAD})") do |t|
       init.max_thread = t
@@ -86,4 +96,5 @@ rescue (EOFError) => e
 rescue (Interrupt) => e
   puts "\e[1A\e[C"
 rescue => e
+  puts e
 end

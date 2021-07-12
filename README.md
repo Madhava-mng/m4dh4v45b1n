@@ -28,7 +28,9 @@ $ m4dh4v45b1n.rb
 
 ## fuzz-web-dir.rb
 
-__Ability__: _hide or show statuscode, chars, line. add headers. with random user-agent_
+__Ability__: _hide or show statuscode, chars, line.runs with random user-agent.And firewall evation with decoys._
+
+__Todo__: create "~/.proxies.txt" for default decoy proxy list. and the format is link x.x.x.x:port.
 
 ```ruby
 $ fuzz-web-dir.rb -h
@@ -41,6 +43,9 @@ Eg: fuzz-web-dir.rb -e php,txt --hc 303,404  https://example.com
     -w WORDLIST     Use custom wordlist. (default:dict/dirs.txt)
     -e EXT          Add extension.Use comma for multiple value. (default:txt,php,html
     -p PAUSE        Pause the fuzz for N second.
+		-d 							Enable decoy (default:~/.proxies.txt)
+		-D DECOY				Use Specify decoy file.
+		-n 							Run with out checking proxy status.
     -t MAXTHREAD    Maximum concurrency. (default:24)
     -T TIMEOUT      Set time out for each try. (default:1s)
     -u URL          Target url.
