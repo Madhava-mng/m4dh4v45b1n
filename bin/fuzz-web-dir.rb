@@ -10,7 +10,8 @@ def  main
     optp.banner = "\nUsage: fuzz-web-dir.rb [-h] [-w DICT] [-t MAXTHREAD] [..] URL
 des: Directory fuzzer. (#{VERSION})
 recomended: ruby-3.x.x otherwise it won't work properly.
-Eg: fuzz-web-dir.rb -e php,txt --hc 303,404  https://example.com\n\n"
+Eg: fuzz-web-dir.rb -e php,txt --hc 303,404  https://example.com
+    fuzz-web-dir.rb -u http://example.com/api/v2/ -D proxy/list.txt -H '{\"foo\":\"bar\"}'\n\n"
     optp.program_name = "fuzz-web-dir"
     optp.summary_width = 15
     optp.program_name = "fuzz-web-dir"
@@ -47,7 +48,7 @@ Eg: fuzz-web-dir.rb -e php,txt --hc 303,404  https://example.com\n\n"
     optp.on('-o OUTPUT', "Write output to the file.")do|f|
       init.out = f
     end
-    optp.on('-H HEAD', 'Add header in json format with in apostrophy. eg:\'{"key":29}\' .')do|h|
+    optp.on('-H HEAD', 'Add header in json format with in apostrophy. eg:\'{"key":29}\' .') do |h|
       init.header = h
     end
     optp.on('-s STATUS', '--hs', "Hide status code. Use comma for multiple value. (default:404)") do |hc|
@@ -79,7 +80,7 @@ Eg: fuzz-web-dir.rb -e php,txt --hc 303,404  https://example.com\n\n"
   if !init.url.nil?
     init.fuzz
   else
-    puts "fuzz-web-dir.rb:TargetRequire:URL:use -h or --help."
+    puts "Usage: fuzz-web-dir.rb [ARG] URL \nuse -h or --help For more info."
   end
 end
 

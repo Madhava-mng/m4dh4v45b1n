@@ -2,7 +2,9 @@
 
 require_relative 'version'
 require 'resolv'
+require 'net/http'
 require 'resolv-replace'
+require_relative 'rand-util'
 
 
 
@@ -22,7 +24,7 @@ def wordlist
       return p+"/gems/m4dh4v45b1n-#{VERSION}/dict/subdomain.txt"
     end
   end
-  puts "enum-subdomain.rb: Unable to deduct default wordlist use -w"
+  puts "enum-subdomain.rb: Unable to detuct default wordlist use -w"
   exit
 end
 def cache_subdomain
@@ -122,17 +124,38 @@ class Subdomain_enum
     end
     return []
   end
+  def further_checkup
+    begin
+      req = Net::HTTP::get_response(URI("http://#{@target}"), {"User-Agent":rand_user_agent})
+      if req.header["Location"][0,28] == "https://www.hugedomains.com/"
+        print "enum-subdomain.rb: It redirect to #{req.header['Location'][0,28]}.The domain is under hugedomains for sale.\nDo you wanna exit ? "
+        return true
+      end
+    rescue => e
+    end
+    return false
+  end
   def brut
     already_have = check_cache_domain
     if @show_cache
       exit
     end
     if Resolv.getaddresses(@target).length == 0
-      print "enum-subdomain.rb: #{@target}:Unreachable.\nDo you wana exit ? "
+      print "enum-subdomain.rb: No Dns records found for #{@target}.\nDo you wana exit ? "
       tmp = STDIN.gets.chomp
       if ["yes", 'y'].include? tmp
+        print "\e[1A#{" "*60}\r"
         exit
       end
+      print "\e[1A#{" "*60}\r"
+    end
+    if further_checkup
+      tmp = STDIN.gets.chomp
+      if ["yes", 'y'].include? tmp
+        print "\e[1A#{" "*60}\r"
+        exit
+      end
+      print "\e[1A#{" "*60}\r"
     end
     if !CACHE.nil?
       @cache_file = File.open(CACHE+"/#{@target}.cache", "a")

@@ -1,6 +1,7 @@
 require_relative 'version'
 require_relative 'rand-util'
 require 'json'
+require 'openssl'
 require 'net/http';
 def wordlist
   Gem::path.map do |p|
@@ -15,9 +16,10 @@ FUZZ_WEB_DIR_DICT= wordlist
 FUZZ_WEB_DIR_HIDE_CODE=['404']
 FUZZ_WEB_DIR_EXT = ['php', 'txt', 'html', 'xml']
 FUZZ_WEB_DIR_HEADER = '{}'
-FUZZ_WEB_DIR_TIMEOUT = 1    # SECONDS
+FUZZ_WEB_DIR_TIMEOUT = 3    # SECONDS
 FUZZ_WEB_DIR_MAX_THREAD = 24
 FUZZ_WEB_DIR_WAIT = 0
+FUZZ_WEB_DIR_PROXY_FILE = "#{ENV['HOME']}/.proxies.txt"
 =begin
 var = Fuzz_web_dir::new
 var.url = "http://example.com"  *
@@ -30,7 +32,7 @@ var.max_thread = 24
 var.ext = ['php','txt']
 =end
 class Fuzz_web_dir
-  attr_accessor :url,:dict,:hide_code,:hide_line,:hide_char,:show_code,:show_line,:show_char,:timeout,:max_thread,:ext,:out,:wait
+  attr_accessor :url,:dict,:hide_code,:hide_line,:hide_char,:show_code,:show_line,:show_char,:timeout,:max_thread,:ext,:out,:wait,:proxy,:decoy,:last_decoy, :pfile,:check,:header
   def initialize()
     @dict = FUZZ_WEB_DIR_DICT
     @hide_code = FUZZ_WEB_DIR_HIDE_CODE
@@ -44,11 +46,42 @@ class Fuzz_web_dir
     @header = FUZZ_WEB_DIR_HEADER
     @ext = FUZZ_WEB_DIR_EXT
     @wait = FUZZ_WEB_DIR_WAIT
+    @decoy = false
+    @check = true
+    @last_decoy = ''
+    @pfile = FUZZ_WEB_DIR_PROXY_FILE
   end
-  def show_result(url_)
+  def show_result(url_, try_ = 5)
     begin
       @header['User-Agent'] = rand_user_agent
-      res_ = Net::HTTP::get_response(URI(url_), @header)
+      if @decoy
+        proxy_ = @last_decoy
+        loop do
+          proxy_ = @proxy.shuffle[0]
+          if proxy_[0] != @last_decoy
+            @last_decoy = proxy_[0]+":"+proxy_[1]
+            break
+          end
+        end
+        proxy = Net::HTTP::Proxy(proxy_[0],proxy_[1].to_i)
+        uri = URI url_
+        uri.query = @header.to_s
+        req = Net::HTTP::Get::new(uri.path)
+        @header.keys.map do |k|
+          req[k] = @header[k]
+        end
+        if uri.scheme == 'https'
+          res_ = proxy.start(uri.host,uri.port,:use_ssl=>true,:verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|     
+            http.request(req)
+          end
+        else
+          res_ = proxy.start(uri.host,uri.port) do |http|
+            http.request(req)
+          end
+        end
+      else
+        res_ = Net::HTTP::get_response(URI(url_), @header)
+      end
       line_ = res_.body.split("\n").length
       char_ = res_.body.length
       code_ = res_.code
@@ -61,19 +94,50 @@ class Fuzz_web_dir
       if (@show_line.include? line_);put_it = true;end
       #if (code_ == '301' and char_ == 0 and line_ == 0);url_ += "/";end
       if put_it
-        puts "\r\e[32m#{url_}\e[0m  lines:\e[33m#{line_}\e[0m chrs:\e[35m#{char_}\e[0m status:\e[36m#{code_}\e[0m"
+        finally_ = "\r\e[32m#{url_}\e[0m  lines:\e[33m#{line_}\e[0m chrs:\e[35m#{char_}\e[0m status:\e[36m#{code_}\e[0m"
+        if !res_.header['Location'].nil?
+          finally_ += " \e[33;1m>\e[0m #{res_.header['Location']}"
+        end
+        puts finally_
+
         if !@out.nil?
           @out.write(url_ + "\n")
         end
       end
     rescue (Errno::ECONNREFUSED) => e
-      print "\rConnectionFailed:Unable to connect..."
+      print "\r#{' '*50}\r> retrying#{'.'* try_}\r"
+      if (try_ != 0)
+        show_result(url_, try_ -1)
+      end
+    rescue (Errno::ECONNRESET) => e
+      print "\r#{' '*50}\r> retrying#{'.'* try_}\r"
+      if (try_ != 0)
+        show_result(url_, try_ -1)
+      end
+    rescue (Net::HTTPRetriableError) => e
+    rescue (Net::HTTPFatalError) => e
+      print "\r#{' '*50}\r> retrying#{'.'* try_}\r"
+      if (try_ != 0)
+        show_result(url_, try_ -1)
+      end
+    rescue (OpenSSL::SSL::SSLError) => e
+      print "#{' '*50}\r> Openssl error. use http\r"
+    rescue (SocketError) => e
+      print "#{' '*50}\r> Socket error. Invalide url.\r"
+    rescue (Net::HTTPServerException) => e
+      print "\r#{' '*50}\r> retrying#{'.'* try_}\r"
+      if (try_ != 0)
+        show_result(url_, try_ -1)
+      end
+    rescue (LocalJumpError) => e
+    rescue (EOFError) => e
     rescue Interrupt => e
       Thread::list::map do |t|
         Thread::kill t
       end
     rescue => e
-      print "\rInvalideURL: #{@url}   "
+      print "\r#{e}\r"
+      #print "\rInvalideURL: #{@url}   "
     end
   end
   def print_status(key,  val)
@@ -91,7 +155,14 @@ class Fuzz_web_dir
       ["pause", "#{@wait}s"],
       ["hide /status/line/char", "#{@hide_code}/#{@hide_line}/#{@hide_char}"],
       ["show /status/line/char", "#{@show_code}/#{@show_line}/#{@show_char}"],
-      ["output", @out]
+      ["output", @out],
+      ["decoy-proxy",
+       if !@proxy.nil?
+         @proxy.length
+       else
+         0
+       end
+      ]
     ].map {|k,v| print_status(k, v)}
     puts "-"*45
   end
@@ -102,6 +173,10 @@ class Fuzz_web_dir
     @ext = @ext.map {|i| '.'+i }
     @ext.append("")
     @header = JSON::parse(@header)
+    if @decoy
+      @proxy = Pr0xy.new.get_proxies(@pfile,  @check)
+      #@proxy = [["http","127.0.0.1",8080],["http","127.0.0.2", 8081]]
+    end
     print_status_all
     if !@out.nil?
       @out = File.open(@out, "w")
@@ -130,7 +205,7 @@ class Fuzz_web_dir
           sleep(0.01 + @wait)
         end
         if string_line.length < 20
-          print "\r#{' '*50}\r> #{string_line.chomp}"
+          print "\r#{' '*55}\r> #{string_line.chomp}\r"
         end
       end
     end

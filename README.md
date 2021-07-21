@@ -10,15 +10,13 @@ It just binaries written in ruby for linux
 
 ## require
 
-* ruby-3.x.x
+- ruby-3.x.x
 
 ## Installation
-
 
 ```bash
 gem install 'm4dh4v45b1n'
 ```
-
 
 ## Usage
 
@@ -28,9 +26,9 @@ $ m4dh4v45b1n.rb
 
 ## fuzz-web-dir.rb
 
-__Ability__: _hide or show statuscode, chars, line.runs with random user-agent.And firewall evation with decoys._
+**Ability**: _hide or show statuscode, chars, line.runs with random user-agent.And firewall evation with decoys._
 
-__Todo__: create "~/.proxies.txt" for default decoy proxy list. and the format is link x.x.x.x:port.
+**Todo**: create "~/.proxies.txt" for default decoy proxy list. x.x.x.x:port format.
 
 ```ruby
 $ fuzz-web-dir.rb -h
@@ -62,7 +60,7 @@ Eg: fuzz-web-dir.rb -e php,txt --hc 303,404  https://example.com
 
 ## enum-subdimain.rb
 
-__Ability__: _Once It get the subdomain via *RANDOM DNS*.It never enumarate again if you don't use '-C' flag.The data logs under ~/.cache/enum-subdomain/._
+**Ability**: _Once It get the subdomain via *RANDOM DNS*.It never enumarate again if you don't use '-C' flag.The data logs under ~/.cache/enum-subdomain/._
 
 ```ruby
 $ enum-subdomain.rb -h
@@ -94,4 +92,4 @@ $ enum-wordpress-user.rb http://test.wordpress.com
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/Madhava-mng/m4dh4v45b1n.
+Bug reports and pull requests https://github.com/Madhava-mng/m4dh4v45b1n

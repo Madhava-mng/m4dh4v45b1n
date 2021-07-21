@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Madhava-mng"]
   spec.email = ["alformint1@gmail.com"]
   spec.summary = "binarys for exploit,scan,enum,brut,fuzz"
-  spec.description = "Developed for POC not harm to any one."
+  spec.description = ""
   spec.homepage  = "https://github.com/Madhava-mng/m4dh4v45b1n"
   spec.required_ruby_version = Gem::Requirement.new(">= 2.4.0")
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
