@@ -39,13 +39,13 @@ des: Directory fuzzer.
 Eg: fuzz-web-dir.rb -e php,txt --hc 303,404  https://example.com
 
     -w WORDLIST     Use custom wordlist. (default:dict/dirs.txt)
-    -e EXT          Add extension.Use comma for multiple value. (default:txt,php,html
-    -p PAUSE        Pause the fuzz for N second.
+    -e EXT          Add extension.Use comma for multiple value. (default:txt,php,html)
+    -p PAUSE        Pause the fuzz for N.0 second.
     -d 		    Enable decoy (default:~/.proxies.txt)
-    -D DECOY	    Use Specify decoy file.
+    -D DECOY	    Use New decoy file.
     -n 		    Run with out checking proxy status.
     -t MAXTHREAD    Maximum concurrency. (default:24)
-    -T TIMEOUT      Set time out for each try. (default:1s)
+    -T TIMEOUT      Set timeout for each try. (default:1s)
     -u URL          Target url.
     -o OUTPUT       Write output to the file.
     -H HEAD         Add header in json format with in apostrophy. eg:'{"key":29}' .
@@ -65,6 +65,7 @@ $ fuzz-web-dir.rb -D proxy/list.txt -e txt,db --hs 404,303 -p 1 http://example.c
 
 ```ruby
 $ fuzz-web-dir.rb -u https://example.com/api/ -t 1 -p 2 -d -H '{"key1":"open"}' -o result.txt --hc 0
+```
 
 ## enum-subdimain.rb
 
