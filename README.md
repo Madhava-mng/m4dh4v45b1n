@@ -1,6 +1,6 @@
 # M4dh4v45b1n
 
-It just binaries written in ruby for linux
+Custom dir fuzzer, subdomain enum, ...
 
 ![](https://img.shields.io/gem/v/m4dh4v45b1n)
 ![](https://img.shields.io/gem/dt/m4dh4v45b1n)
@@ -56,7 +56,15 @@ Eg: fuzz-web-dir.rb -e php,txt --hc 303,404  https://example.com
     -C, --sc CHARS  Show No.Of.Chars. Use comma for multiple value.
     -L, --sl LINES  Show No.of.Lines. Use comma for multiple value.
     -h, --help      Print this help banner.
+
 ```
+
+```ruby
+$ fuzz-web-dir.rb -D proxy/list.txt -e txt,db --hs 404,303 -p 1 http://example.com/
+```
+
+```ruby
+$ fuzz-web-dir.rb -u https://example.com/api/ -t 1 -p 2 -d -H '{"key1":"open"}' -o result.txt --hc 0
 
 ## enum-subdimain.rb
 
@@ -84,6 +92,14 @@ Eg: enum-subdomain.rb -v example.com
     -n             Hide cached subdomain and show only new.
     -h, --help     Print this help banner.
 
+```
+
+```ruby
+$ enum-subdomain.rb -v test.net
+```
+
+```ruby
+$ enum-subdomain.rb -c test.net
 ```
 
 ```bash
