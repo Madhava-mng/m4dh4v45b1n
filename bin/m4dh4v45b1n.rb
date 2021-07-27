@@ -8,7 +8,8 @@ script
   │    ├── enum-wordpress-user.rb
   │    └── enum-subdomain.rb
   ├── exploit
-  ├── scan
+  ├── recon
+  │     └── recon-passive-subdomain.rb
   ├── fuzz  
   │    └── fuzz-web-dir.rb
   └── brut

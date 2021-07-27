@@ -103,7 +103,28 @@ $ enum-subdomain.rb -v test.net
 $ enum-subdomain.rb -c test.net
 ```
 
-```bash
+## recon-passive-subdomain.rb
+
+```ruby
+$ recon-passive-subdomain.rb
+
+Usage: recon-passive-subdomain.rb [ARG] DOMAIN
+
+des: Passive recon for subdomains. data collected
+from sdcd files. with out intract target or dns.
+Edit the ~/.s-passive.conf for more customize.
+licensed under GNU.You can modify If you
+willing to read my code. :) (0.1.9)
+
+		-o, --out [FILE]         Put the domains to file
+		-d, --depth [INT]        Incress If you need more result. default is 1.
+		-s, --source-depth [INT] Print only from n number of source. default is 1.
+
+		-m, --max-result [INT]   Print only n number of result. default is 500.
+		-h, --help               Print this banner and exit
+```
+
+```ruby
 $ enum-wordpress-user.rb http://test.wordpress.com
 ```
 
