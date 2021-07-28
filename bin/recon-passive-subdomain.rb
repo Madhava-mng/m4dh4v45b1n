@@ -1,3 +1,5 @@
+#!/bin/env ruby
+
 require 'sdcd'
 require 'digest'
 require 'net/http'
@@ -29,16 +31,39 @@ URLS = [
     "SDCD",
     "@",
     ","
+  ],
+  [
+    "https://raw.githubusercontent.com/cyb3r-mafia/subdomains/main/assets4/<SDCD>.sdcd",
+    "URL",
+    "SHA1",
+    "SDCD",
+    "@",
+    ","
+  ],
+  [
+    "https://raw.githubusercontent.com/cyb3r-mafia/subdomains/main/assets5/<SDCD>.sdcd",
+    "URL",
+    "SHA1",
+    "SDCD",
+    "@",
+    ","
+  ],
+  [
+    "https://raw.githubusercontent.com/cyb3r-mafia/subdomains/main/assets6/<SDCD>.sdcd",
+    "URL",
+    "SHA1",
+    "SDCD",
+    "@",
+    ","
   ]
 ]
 
 SORCE_DEPTH = 1
-SDCD_DIR = []
 CONFIG_FILE = ENV["HOME"] + "/.s-pasive.conf"
 
 tmp = []
-
-
+tmp2 = []
+src = ''
 
 
 if !File.exist? CONFIG_FILE
@@ -58,7 +83,16 @@ if File.exist? CONFIG_FILE
   File.open(CONFIG_FILE, "r") do |f|
     f.readlines.map do |l|
       if !l.start_with? "#"
-        tmp.append(l.chop.split(" "))
+        val  = l.chop.split(" ")
+        if val[1] == "URL"
+          tmp.append(val)
+          src += "\e[34;1m🌐 #{val[0]}\e[0m\n"
+        elsif val[1] == "DIR"
+          src +=  "\e[34;1m  #{val[0]}\e[0m\n"
+          tmp2.append(val)
+        else
+          src += "\e[31;1m✘ #{l}\e[0m\n"
+        end
       end
     end
   end
@@ -67,6 +101,8 @@ else
 end
 
 SDCD_URL_DIR = tmp
+SDCD_DIR = tmp2
+SRC = src
 
 class ReconSubdomain
 
@@ -96,33 +132,32 @@ class ReconSubdomain
     @sdcd_dir.map do |templet|
       if @source_depth != 0
         if templet[-3] == "SDCD" and templet[1] == "DIR"
-            hash = hashit(templet[-4], @domain)
-        end
-        @depth.times do |d|
-          if d > 0
-            hash = hashit(templet[-4], @domain + d.to_s)
-          end
-          path = templet[0].gsub("<SDCD>", hash)
-          puts "\e[34;1m[•] #{path}\e[0m"
-          if File.exist? path
-            puts "\n\e[32m[+] Data Found at depth\e[0m #{d}.\n\n"
-            sdcd_dict = SDCD::new.read(path)
-            sdcd_dict[@domain].map do |us_data|
-              ips,sdomain = us_data.split(templet[-2])
-              if !@notin.include? sdomain
-                @notin.append(sdomain)
-                puts "[+] \e[36;1m#{sdomain}\e[0m  |\e[2;1m#{ips.gsub(templet[-1],"\e[0m|\e[2;1m")}\e[0m|"
-                if !@out.nil?
-                  File.open(@out, "a") do |l|
-                    l.write(sdomain + "\n")
+          hash = hashit(templet[-4], @domain)
+          @depth.times do |d|
+            if d > 0
+              hash = hashit(templet[-4], @domain + d.to_s)
+            end
+            path = templet[0].gsub("<SDCD>", hash)
+            if File.exist? path
+              puts "\n\e[32m[+] Data Found at depth\e[0m #{d}.\n\n"
+              sdcd_dict = SDCD::new.read(path)
+              sdcd_dict[@domain].map do |us_data|
+                ips,sdomain = us_data.split(templet[-2])
+                if !@notin.include? sdomain
+                  @notin.append(sdomain)
+                  puts "[\e[32;1m+\e[0m] \e[36;1m#{sdomain}\e[0m  |\e[2;1m#{ips.gsub(templet[-1],"\e[0m|\e[2;1m")}\e[0m|"
+                  if !@out.nil?
+                    File.open(@out, "a") do |l|
+                      l.write(sdomain + "\n")
+                    end
                   end
                 end
+                if @max_res == @notin.length
+                  exit
+                end
               end
-              if @max_res == @notin.length
-                exit
-              end
+              @source_depth -= 1
             end
-            @source_depth -= 1
           end
         end
       end
@@ -145,7 +180,6 @@ class ReconSubdomain
               hash = hashit(templet[-4], @domain + d.to_s)
             end
             url = templet[0].gsub("<SDCD>", hash)
-            puts "\e[1;34m[•] #{url}\e[0m"
             req = Net::HTTP::get_response(URI url)
             if req.code == '200'
               puts "\n\e[32m[+] Data Found at depth\e[0m #{d}.\n\n"
@@ -154,7 +188,7 @@ class ReconSubdomain
                 ips,sdomain = us_data.split(templet[-2])
                 if !@notin.include? sdomain
                   @notin.append(sdomain)
-                  puts "[+] \e[36;1m#{sdomain}\e[0m  |\e[2;1m#{ips.gsub(templet[-1],"\e[0m|\e[2;1m")}\e[0m|"
+                  puts "[\e[32;1m+\e[0m] \e[36;1m#{sdomain}\e[0m  |\e[2;1m#{ips.gsub(templet[-1],"\e[0m|\e[2;1m")}\e[0m|"
                   if !@out.nil?
                     File.open(@out, "a") do |l|
                       l.write(sdomain + "\n")
@@ -211,6 +245,7 @@ willing to read my code. :) (#{VERSION})\n\n"
     init.domain = ARGV[-1]
   end
   if !init.domain.nil?
+    puts SRC
     init.scan
   else
     puts "Usage: recon-passive-subdomain.rb [ARG] DOMAIN\n use --help for more info."
