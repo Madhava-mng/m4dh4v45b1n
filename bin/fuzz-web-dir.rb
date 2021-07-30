@@ -10,63 +10,66 @@ def  main
     optp.banner = "\nUsage: fuzz-web-dir.rb [-h] [-w DICT] [-t MAXTHREAD] [..] URL
 des: Directory fuzzer. (#{VERSION})
 recomended: ruby-3.x.x otherwise it won't work properly.
-Eg: fuzz-web-dir.rb -e php,txt --hc 303,404  https://example.com
-    fuzz-web-dir.rb -u http://example.com/api/v2/ -D proxy/list.txt -H '{\"foo\":\"bar\"}'\n\n"
+Eg: fuzz-web-dir.rb -e php,txt --hs 303,404  https://example.com
+    fuzz-web-dir.rb -u http://example.com/ -w num.txt -H '{\"foo\":\"bar\"}'\n\n"
     optp.program_name = "fuzz-web-dir"
-    optp.summary_width = 15
+    optp.summary_width = 12
     optp.program_name = "fuzz-web-dir"
     optp.version = VERSION
 
-    optp.on('-w WORDLIST', "Use custom wordlist. (default:#{FUZZ_WEB_DIR_DICT})") do |w|
+    optp.on('-w FILE', "Use custom wordlist. ","(default:#{FUZZ_WEB_DIR_DICT})\n") do |w|
       init.dict = w
     end
-    optp.on('-e EXT', "Add extension.Use comma for multiple value. (default:txt,php,html,xml") do |w|
+    optp.on('-e EXT', "Add extension.","Use comma for multiple value.", "(default:txt,php,html,xml") do |w|
       init.ext = w.split(',')
     end
-    optp.on('-p PAUSE', Float, 'Pause the fuzz for N second.') do |p|
+    optp.on('-p INT', Float, 'Pause the fuzz for N second.') do |p|
       init.wait = p
     end
-    optp.on('-d' , "Enable decoy for evate the fire wall. add #{FUZZ_WEB_DIR_PROXY_FILE} for default decoy list. x.x.x.x:p format.") do |d|
+    optp.on('-d' , "Enable decoy for evate the fire wall.","add #{FUZZ_WEB_DIR_PROXY_FILE},","for default decoy list. x.x.x.x:p format.") do |d|
       init.decoy = true
     end
-    optp.on('-D DECOY' , "Use decoy file.") do |d|
+    optp.on('-D FILE' , "Use decoy file.") do |d|
       init.decoy = true
       init.pfile = d
     end
-    optp.on('-n', 'Run decoy with out checking it. It may affect the result.') do
+    optp.on('-n', 'Run decoy with out checking it.',"It may affect the result.\n") do
       init.check = false
     end
-    optp.on('-t MAXTHREAD', Integer, "Maximum concurrency. (default:#{FUZZ_WEB_DIR_MAX_THREAD})") do |t|
+    optp.on('-f', "Follow redirection") do |f|
+      init.follow = true
+    end
+    optp.on('-t INT', Integer, "Maximum concurrency. (default:#{FUZZ_WEB_DIR_MAX_THREAD})\n") do |t|
       init.max_thread = t
     end
-    optp.on('-T TIMEOUT', Float, "Set time out for each try. (default:#{FUZZ_WEB_DIR_TIMEOUT}s)") do|t|
+    optp.on('-T INT', Float, "Set time out for each try. (default:#{FUZZ_WEB_DIR_TIMEOUT}s)\n") do|t|
       init.timeout = t
     end
-    optp.on('-u URL', "Target url.")do|u|
+    optp.on('-u URL', "Target url or specify without -u flag.\n")do|u|
       init.url = u
     end
-    optp.on('-o OUTPUT', "Write output to the file.")do|f|
+    optp.on('-o FILE', "Write output to the file.")do|f|
       init.out = f
     end
-    optp.on('-H HEAD', 'Add header in json format with in apostrophy. eg:\'{"key":29}\' .') do |h|
+    optp.on('-H HEAD', 'Add header in json format with in apostrophy.',' eg:\'{"key":29}\' .') do |h|
       init.header = h
     end
-    optp.on('-s STATUS', '--hs', "Hide status code. Use comma for multiple value. (default:404)") do |hc|
+    optp.on('-s INT', '--hs', "Hide status code. Use comma for multiple value. ","(default:404)") do |hc|
       init.hide_code = hc.split(',')
     end
-    optp.on('-c CHARS', '--hc', "Hide No.Of.Chars. Use comma for multiple value. ") do |hc|
+    optp.on('-c INT', '--hc', "Hide No.Of.Chars. Use comma for multiple value. ") do |hc|
       init.hide_char = hc.split(',').map {|e| e.to_i}
     end
-    optp.on('-l LINES', '--hl', "Hide No.of.Lines. Use comma for multiple value. ") do |hc|
+    optp.on('-l INT', '--hl', "Hide No.of.Lines. Use comma for multiple value. ") do |hc|
       init.hide_line = hc.split(',').map {|e| e.to_i}
     end
-    optp.on('-S STATUS', '--ss', "Show status code. Use comma for multiple value.") do |hc|
+    optp.on('-S INT', '--ss', "Show status code. Use comma for multiple value.") do |hc|
       init.show_code = hc.split(',')
     end
-    optp.on('-C CHARS', '--sc', "Show No.Of.Chars. Use comma for multiple value. ") do |hc|
+    optp.on('-C INT', '--sc', "Show No.Of.Chars. Use comma for multiple value. ") do |hc|
       init.show_char = hc.split(',').map {|e| e.to_i}
     end
-    optp.on('-L LINES', '--sl', "Show No.of.Lines. Use comma for multiple value. ") do |hc|
+    optp.on('-L INT', '--sl', "Show No.of.Lines. Use comma for multiple value. ") do |hc|
       init.show_line = hc.split(',').map {|e| e.to_i}
     end
     optp.on('-h', '--help', "Print this help banner.") do |h|
