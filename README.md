@@ -24,6 +24,11 @@ gem install 'm4dh4v45b1n'
 $ m4dh4v45b1n.rb
 ```
 
+## version 0.2.4
+
+* added -E for dissable extension search. in 'fuzz-web-dir.rb'
+
+
 ## fuzz-web-dir.rb
 
 **Ability**: _hide or show statuscode, chars, line.runs with random user-agent.And firewall evation with decoys._

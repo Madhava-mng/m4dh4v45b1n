@@ -14,7 +14,7 @@ def wordlist
 end
 FUZZ_WEB_DIR_DICT= wordlist
 FUZZ_WEB_DIR_HIDE_CODE=['404']
-FUZZ_WEB_DIR_EXT = ['php', 'txt', 'html', 'xml']
+FUZZ_WEB_DIR_EXT = ['php', 'txt', 'html', 'db']
 FUZZ_WEB_DIR_HEADER = '{}'
 FUZZ_WEB_DIR_TIMEOUT = 3    # SECONDS
 FUZZ_WEB_DIR_MAX_THREAD = 24
@@ -32,7 +32,7 @@ var.max_thread = 24
 var.ext = ['php','txt']
 =end
 class Fuzz_web_dir
-  attr_accessor :url,:dict,:hide_code,:hide_line,:hide_char,:show_code,:show_line,:show_char,:timeout,:max_thread,:ext,:out,:wait,:proxy,:decoy,:last_decoy, :pfile,:check,:header,:follow
+  attr_accessor :url,:dict,:hide_code,:hide_line,:hide_char,:show_code,:show_line,:show_char,:timeout,:max_thread,:ext,:out,:wait,:proxy,:decoy,:last_decoy, :pfile,:check,:header,:follow,:use_ext
   def initialize()
     @dict = FUZZ_WEB_DIR_DICT
     @hide_code = FUZZ_WEB_DIR_HIDE_CODE
@@ -49,6 +49,7 @@ class Fuzz_web_dir
     @decoy = false
     @check = true
     @follow = false
+    @use_ext = true
     @last_decoy = ''
     @pfile = FUZZ_WEB_DIR_PROXY_FILE
   end
@@ -179,8 +180,12 @@ class Fuzz_web_dir
     if @url[-1] != '/'
       @url += '/'
     end
-    @ext = @ext.map {|i| '.'+i }
-    @ext.append("")
+    if @use_ext
+      @ext = @ext.map {|i| '.'+i }
+      @ext.append("")
+    else
+      @ext = [""]
+    end
     @header = JSON::parse(@header)
     if @decoy
       @proxy = Pr0xy.new.get_proxies(@pfile,  @check)

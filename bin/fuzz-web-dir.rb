@@ -23,6 +23,9 @@ Eg: fuzz-web-dir.rb -e php,txt --hs 303,404  https://example.com
     optp.on('-e EXT', "Add extension.","Use comma for multiple value.", "(default:txt,php,html,xml") do |w|
       init.ext = w.split(',')
     end
+    optp.on('-E', "Dissable extension search.") do |e|
+      init.use_ext = false
+    end
     optp.on('-p INT', Float, 'Pause the fuzz for N second.') do |p|
       init.wait = p
     end
