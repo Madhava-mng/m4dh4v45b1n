@@ -7,6 +7,7 @@ Custom dir fuzzer, subdomain enum, ...
 ![](https://img.shields.io/gem/rt/m4dh4v45b1n)
 ![](https://img.shields.io/gem/dtv/m4dh4v45b1n)
 ![](https://img.shields.io/github/license/Madhava-mng/m4dh4v45b1n)
+[Telegram public group to contact](https://t.me/m4dh4v45b1n)
 
 ## require
 
